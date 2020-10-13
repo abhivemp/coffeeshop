@@ -64,7 +64,7 @@ final class HttpRequest implements Runnable {
     String requestLine = br.readLine();
 
     // Display the request line
-    System.out.println();
+    System.out.println("******************");
     System.out.println(requestLine);
 
     // Get and display the header lines
@@ -85,6 +85,13 @@ final class HttpRequest implements Runnable {
 
     // Prepend a "." so that file req is within current directory
     fileName = "." + fileName;
+
+    //Testing to see the filename
+    System.out.println("*********************");
+    System.out.println(requestLine);
+    System.out.println("*********************");
+
+    System.out.println(fileName);
 
     // Open the requested file
     FileInputStream fis = null;
