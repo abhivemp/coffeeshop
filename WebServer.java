@@ -47,12 +47,13 @@ final class HttpRequest implements Runnable {
     try {
         processRequest();
     } catch (Exception e) {
-        System.out.println(e);
+        System.out.println("Exception " + e);
     }
   }
 
   private void processRequest() throws Exception {
     // Get a reference to the socket's input and output streams
+    System.out.println("Did we get this far?");
     InputStream is = socket.getInputStream();
     DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 
@@ -65,7 +66,7 @@ final class HttpRequest implements Runnable {
 
     // Display the request line
     System.out.println("******************");
-    System.out.println(requestLine);
+    // System.out.println(requestLine);
 
     // Get and display the header lines
     String headerLine = null;
@@ -91,16 +92,16 @@ final class HttpRequest implements Runnable {
     System.out.println(requestLine);
     System.out.println("*********************");
 
-    System.out.println(fileName);
+    System.out.println("FILE: " + fileName);
 
     // Open the requested file
     FileInputStream fis = null;
     boolean fileExists = true;
     try {
       fis = new FileInputStream(fileName);
-      System.out.println("THE FILE NAME IS THIS " + fileName);
     } catch (FileNotFoundException e) {
       fileExists = false;
+      System.out.println("THIS FILE IS NOT FOUND!!!!!!%^&*(&^%^&*(&^%^*()");
       System.out.println(fileExists);
     }
 
@@ -111,6 +112,7 @@ final class HttpRequest implements Runnable {
     if(fileExists) {
       statusLine = "200 OK" + CRLF;
       contentTypeLine = "Content-type: " + contentType(fileName) + CRLF;
+      System.out.println("Content typeline is " + contentTypeLine);
     }
     else {
       System.out.println("in 404");
@@ -121,10 +123,10 @@ final class HttpRequest implements Runnable {
 
     // Send the status line
     os.writeBytes(statusLine);
-
+    System.out.println("Status line is " + statusLine);
     // Send the content type line
     os.writeBytes(contentTypeLine);
-
+    System.out.println("Content typeline is " + contentTypeLine);
     // Send a blank line to indicate the end of the header line
     os.writeBytes(CRLF);
   
@@ -141,6 +143,7 @@ final class HttpRequest implements Runnable {
 
   private static void sendBytes(FileInputStream fis, OutputStream os) throws Exception {
     // Construct a 1K buffer to hold bytes on their way to the socket
+    System.out.println("In sendbytesl");
     byte[] buffer = new byte[1024];
     int bytes = 0;
     
@@ -158,6 +161,12 @@ final class HttpRequest implements Runnable {
       return "image/jpeg";
     if(fileName.endsWith(".gif"))
       return "image/gif";
-    return "application/octet-stream";
+    if (fileName.endsWith(".mp4"))
+      return "video/mp4";
+    if (fileName.endsWith(".mp3"))
+      return "audio/mp3";
+    if (fileName.endsWith(".webm"))
+      return "video/webm";
+      return "application/octet-stream";
   }
 }
