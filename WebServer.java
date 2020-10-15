@@ -5,22 +5,19 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public final class WebServer {
-
-  String HOST_NAME = "127.0.0.1";
-
-  public static void main(String[] args) throws Exception {
+public final class WebServer 
+{
+  public static void main(String[] args) throws Exception 
+  {
     // Da port
     int port = 8888;
     
     // Server Socket 
     ServerSocket serverSocket = new ServerSocket(port);
-    System.out.println("******************** YEET ********************");
     while (true){
 
       //Listen for a TCP connection request
       Socket clientSocket = serverSocket.accept();
-      System.out.println("connected!");
       // Construct an object to process HTTP request message
       HttpRequest request = new HttpRequest(clientSocket);
       // Create a new thread to process the request
@@ -28,7 +25,6 @@ public final class WebServer {
       
       // Start the thread
       thread.start();
-
     }
   }
 }
@@ -36,22 +32,29 @@ public final class WebServer {
 final class HttpRequest implements Runnable {
       
   final static String CRLF = "\r\n";
+  static final String INDEX_FILE = "index.html";
   Socket socket;
 
   // Constructor
-  public HttpRequest(Socket socket) throws Exception {
+  public HttpRequest(Socket socket) throws Exception 
+  {
     this.socket = socket;
   }
   // Run() method of the Runnable interface
-  public void run() {
-    try {
+  public void run() 
+  {
+    try 
+    {
         processRequest();
-    } catch (Exception e) {
+    } 
+    catch (Exception e) 
+    {
         System.out.println(e);
     }
   }
 
-  private void processRequest() throws Exception {
+  private void processRequest() throws Exception 
+  {
     // Get a reference to the socket's input and output streams
     InputStream is = socket.getInputStream();
     DataOutputStream os = new DataOutputStream(socket.getOutputStream());
@@ -64,12 +67,12 @@ final class HttpRequest implements Runnable {
     String requestLine = br.readLine();
 
     // Display the request line
-    System.out.println("******************");
     System.out.println(requestLine);
 
     // Get and display the header lines
     String headerLine = null;
-    while ((headerLine = br.readLine()).length() != 0) {
+    while ((headerLine = br.readLine()).length() != 0) 
+    {
       System.out.println(headerLine);
     }
 
@@ -83,23 +86,24 @@ final class HttpRequest implements Runnable {
     tokens.nextToken(); // skip over the method, which should be "GET"
     String fileName = tokens.nextToken();
 
+    //Adding INDEX_FILE to fileName
+    fileName += INDEX_FILE;
+
     // Prepend a "." so that file req is within current directory
     fileName = "." + fileName;
-
-    //Testing to see the filename
-    System.out.println("*********************");
-    System.out.println(requestLine);
-    System.out.println("*********************");
 
     System.out.println(fileName);
 
     // Open the requested file
     FileInputStream fis = null;
     boolean fileExists = true;
-    try {
+
+    try 
+    {
       fis = new FileInputStream(fileName);
-      System.out.println("THE FILE NAME IS THIS " + fileName);
-    } catch (FileNotFoundException e) {
+    } 
+    catch (FileNotFoundException e) 
+    {
       fileExists = false;
       System.out.println(fileExists);
     }
@@ -108,11 +112,13 @@ final class HttpRequest implements Runnable {
     String statusLine = null;
     String contentTypeLine = null;
     String entityBody = null;
-    if(fileExists) {
+    if(fileExists) 
+    {
       statusLine = "200 OK" + CRLF;
       contentTypeLine = "Content-type: " + contentType(fileName) + CRLF;
     }
-    else {
+    else 
+    {
       System.out.println("in 404");
       statusLine = "404 NOT FOUND" + CRLF;
       contentTypeLine = "Content-type: " + CRLF;
@@ -120,32 +126,43 @@ final class HttpRequest implements Runnable {
     }
 
     // Send the status line
+    System.out.println("WRITING STATUS LINE");
     os.writeBytes(statusLine);
+    System.out.println("COMPLETED STATUS LINE");
 
     // Send the content type line
+    System.out.println("WRITING CONTENT TYPE LINE");
     os.writeBytes(contentTypeLine);
+    System.out.println("COMPLETED CONTENT TYPE LINE");
 
     // Send a blank line to indicate the end of the header line
+    System.out.println("WRITING BLANK LINE");
     os.writeBytes(CRLF);
+    System.out.println("COMPLETED BLANK LINE");
   
     // send the entity body
-    if (fileExists) {
+    if (fileExists) 
+    {
+      System.out.println("SENDING ENTITY BODY FOR 200");
       sendBytes(fis, os);
       fis.close();
-    } else {
+    } 
+    else 
+    {
+      System.out.println("SENDING ENTITY BODY FOR 404");
       os.writeBytes(entityBody);
-    }
-    os.close();
-  
+    }  
   }
 
-  private static void sendBytes(FileInputStream fis, OutputStream os) throws Exception {
+  private static void sendBytes(FileInputStream fis, OutputStream os) throws Exception 
+  {
     // Construct a 1K buffer to hold bytes on their way to the socket
     byte[] buffer = new byte[1024];
     int bytes = 0;
     
     // Copy requested file into the socket's output stream
-    while((bytes = fis.read(buffer)) != -1 ) {
+    while((bytes = fis.read(buffer)) != -1 ) 
+    {
       os.write(buffer, 0, bytes);
     }
   }
