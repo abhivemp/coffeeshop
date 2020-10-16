@@ -162,7 +162,7 @@ final class HttpRequest implements Runnable {
     if(fileName.endsWith(".gif"))
       return "image/gif";
     if (fileName.endsWith(".mp4"))
-      return "video/mp4";
+      return  "video/mp4";
     if (fileName.endsWith(".mp3"))
       return "audio/mp3";
     if (fileName.endsWith(".webm"))
