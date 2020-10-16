@@ -90,11 +90,7 @@ final class HttpRequest implements Runnable {
     String fileName = tokens.nextToken();
     // Prepend a "." so that file req is within current directory
     fileName = "." + fileName;
-    //Testing to see the filename
-
-    System.out.println(requestLine);
-
-    System.out.println("FILE: " + fileName);
+   
     // Open the requested file
     FileInputStream fis = null;
     boolean fileExists = true;
@@ -102,9 +98,8 @@ final class HttpRequest implements Runnable {
       fis = new FileInputStream(fileName);
     } catch (FileNotFoundException e) {
       fileExists = false;
-
-      System.out.println(fileExists);
     }
+   
     // Construct the response message
     String statusLine = null;
     String contentTypeLine = null;
@@ -112,17 +107,15 @@ final class HttpRequest implements Runnable {
     if(fileExists) {
       statusLine = "HTTP/1.1 200 OK" + CRLF;
       contentTypeLine = "Content-type: " + contentType(fileName) + CRLF;
-      System.out.println("Content typeline is " + contentTypeLine);
     }
     else {
-      System.out.println("in 404");
       statusLine = "HTTP/1.1 404 NOT FOUND" + CRLF;
       contentTypeLine = "Content-type: text/html" + CRLF;
       entityBody = "<HTML>" + "<HEAD><TITLE>Not Found</TITLE></HEAD>" + "<BODY>Not Found</BODY></HTML>";
     }
     // Send the status line
     os.writeBytes(statusLine);
-    System.out.println("Status line is " + statusLine);
+   
     // Send the content type line
     os.writeBytes(contentTypeLine);
 
