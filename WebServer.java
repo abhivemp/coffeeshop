@@ -9,28 +9,51 @@ import java.nio.channels.*;
 public final class WebServer {
 
   public static void main(String[] args) throws Exception {
-    // Da port
-    int port = 8888;
-    int port2 = 5555;
+    // Da ports
+    int ports[] = {8888, 5555};
+
+    Selector selector = Selector.open();
     
-    // Server Socket 
-    ServerSocket serverSocket = new ServerSocket(port);
-    System.out.println("******************** YEET ********************");
+    // Server Socket Channel
+    for (int port : ports){
+      System.out.println("CONFIGURING PORT #: " + port);
+      ServerSocketChannel ssc = ServerSocketChannel.open();
+      ssc.configureBlocking(false);
+      System.out.println("BINDING SOCKET WITH PORT #: " + port);
+      ssc.socket().bind(new InetSocketAddress(port));
+      ssc.register(selector, SelectionKey.OP_ACCEPT);
+      System.out.println("AFTER THE BINDING!!!");
+    }
+
     while (true){
+      selector.select();
+   
+      Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
+      System.out.println(selector);
+      while(selectedKeys.hasNext()){
+        System.out.println("In the second while loop");
+        SelectionKey selectedKey = selectedKeys.next();
 
-      //Listen for a TCP connection request
-      Socket clientSocket = serverSocket.accept();
-      System.out.println("connected!");
-      // Construct an object to process HTTP request message
-      //HttpRequest request = new HttpRequest(clientSocket); //Comment to do MovedRequest
-
-      MovedRequest mRequest = new MovedRequest(clientSocket);
-      // Create a new thread to process the request
-      Thread thread = new Thread(mRequest);
-      
-      // Start the thread
-      thread.start();
-
+        if(selectedKey.isAcceptable())
+        {
+          SocketChannel socketChannel = ((ServerSocketChannel) selectedKey.channel()).accept();
+          socketChannel.configureBlocking(false);
+          System.out.println("THE KEY IS ACCEPTABLE!!!");
+          switch (socketChannel.socket().getPort()) 
+          {
+            case 8888:
+              HttpRequest httpRequest = new HttpRequest(socketChannel.socket());
+              Thread thread1 = new Thread(httpRequest);   //Handles HttpRequest
+              thread1.start();
+              break;
+            case 5555:
+              MovedRequest movedRequest = new MovedRequest(socketChannel.socket());
+              Thread thread2 = new Thread(movedRequest);   //Handles MovedRequest
+              thread2.start();
+              break;
+          }
+        }
+      }
     }
   }
 }
@@ -145,7 +168,7 @@ final class HttpRequest implements Runnable {
 
   private static void sendBytes(FileInputStream fis, OutputStream os) throws Exception {
     // Construct a 1K buffer to hold bytes on their way to the socket
-    System.out.println("In sendbytesl");
+    System.out.println("In sendbytes!");
     byte[] buffer = new byte[1024];
     int bytes = 0;
     
@@ -209,13 +232,14 @@ final class MovedRequest implements Runnable {
       System.out.println(headerLine);
     }
 
+    //Response Header for 301
     String statusLine = "HTTP/1.1 301 Moved Permanently" + CRLF;
     String locationLine = "Location: http://www.google.com" + CRLF;
 
     os.writeBytes(statusLine);
-    System.out.println("Status Line: " + statusLine);
+    //System.out.println("Status Line: " + statusLine); //Bug testing
     os.writeBytes(locationLine);
-    System.out.println("Location Line: " + locationLine);
+    //System.out.println("Location Line: " + locationLine); //Bug testing
     os.writeBytes(CRLF);
 
     os.close();
