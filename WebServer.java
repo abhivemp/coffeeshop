@@ -4,14 +4,14 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.nio.channels.*;
 
 public final class WebServer {
-
-  String HOST_NAME = "127.0.0.1";
 
   public static void main(String[] args) throws Exception {
     // Da port
     int port = 8888;
+    int port2 = 5555;
     
     // Server Socket 
     ServerSocket serverSocket = new ServerSocket(port);
@@ -22,9 +22,11 @@ public final class WebServer {
       Socket clientSocket = serverSocket.accept();
       System.out.println("connected!");
       // Construct an object to process HTTP request message
-      HttpRequest request = new HttpRequest(clientSocket);
+      //HttpRequest request = new HttpRequest(clientSocket); //Comment to do MovedRequest
+
+      MovedRequest mRequest = new MovedRequest(clientSocket);
       // Create a new thread to process the request
-      Thread thread = new Thread(request);
+      Thread thread = new Thread(mRequest);
       
       // Start the thread
       thread.start();
@@ -168,5 +170,54 @@ final class HttpRequest implements Runnable {
     if (fileName.endsWith(".webm"))
       return "video/webm";
     return "application/octet-stream";
+  }
+}
+
+final class MovedRequest implements Runnable {
+
+  final static String CRLF = "\r\n";
+  Socket socket;
+
+  public MovedRequest(Socket socket) throws Exception{
+    this.socket = socket;
+  }
+
+  public void run(){
+    try{
+      processRequest();
+    } catch (Exception e){
+      System.out.println("Exception: " + e);
+    }
+  }
+
+  private void processRequest() throws Exception{
+    //Setting up In-stream and Out-stream
+    System.out.println("Processing MovedRequest");
+    InputStream is = socket.getInputStream();
+    DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+
+    //Setting up reader & buffer
+    InputStreamReader reader = new InputStreamReader(is);
+    BufferedReader br = new BufferedReader(reader);
+
+    //Recieving the request line
+    String requestLine = br.readLine();
+
+    //Getting the header line
+    String headerLine = null;
+    while ((headerLine = br.readLine()).length() != 0) {
+      System.out.println(headerLine);
+    }
+
+    String statusLine = "HTTP/1.1 301 Moved Permanently" + CRLF;
+    String locationLine = "Location: http://www.google.com" + CRLF;
+
+    os.writeBytes(statusLine);
+    System.out.println("Status Line: " + statusLine);
+    os.writeBytes(locationLine);
+    System.out.println("Location Line: " + locationLine);
+    os.writeBytes(CRLF);
+
+    os.close();
   }
 }
