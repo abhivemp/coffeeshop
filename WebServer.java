@@ -11,43 +11,7 @@ public final class WebServer {
   static String HOST_NAME = "localhost";
 
   public static void main(String[] args) throws Exception {
-    // Da port
-    int port1 = 8888;
-    int port2 = 5555;
-    int ports[] = new int[] {8888};
-
-    // // Server Socket 
-    // ServerSocket serverSocket = new ServerSocket(port);
-    // System.out.println("******************** YEET ********************");
-    // while (true){
-    //   //Listen for a TCP connection request
-    //   Socket clientSocket = serverSocket.accept();
-    //   System.out.println("connected!");
-    //   // Construct an object to process HTTP request message
-    //   HttpRequest request = new HttpRequest(clientSocket);
-    //   //HttpRequest request = new HttpRequest(clientSocket); //Comment to do MovedRequest
-
-    //   MovedRequest mRequest = new MovedRequest(clientSocket);
-    //   // Create a new thread to process the request
-    //   Thread thread = new Thread(request);
-    //   Thread thread = new Thread(mRequest);
-
-    //   // Start the thread
-    //   thread.start();
-    System.out.println("******************** YEET ********************");
-    // Selector selector = Selector.open();
-    // ServerSocketChannel ssc = ServerSocketChannel.open();
-    // for (int port : ports)
-    // {
-    //   ssc = ServerSocketChannel.open();
-    //   InetSocketAddress host = new InetSocketAddress(HOST_NAME, port);  //Binding to port
-    //   ssc.socket().bind(host);
-    //   ssc.configureBlocking(false);
-    //   int ops = ssc.validOps();
-    //   SelectionKey selectKey = ssc.register(selector, ops, null);
-    // }
-   
-    
+ 
     ServerSocketChannel server1 = ServerSocketChannel.open();
     ServerSocketChannel server2 = ServerSocketChannel.open();
     server1.socket().bind(new InetSocketAddress(8888));
@@ -79,48 +43,6 @@ public final class WebServer {
         }
     }
 
-
-    // while (true)
-    // {
-    //   System.out.println("Selecting operation");
-    //   int numOfKeys = selector.select();
-    //   System.out.println("The number of selected keys are: " + numOfKeys);
-    //   Set<SelectionKey> skeys = selector.selectedKeys();
-    //   // Iterator selectedKeys = skeys.iterator();
-
-    //   for (Iterator<SelectionKey> i = keys.iterator(); i.hasNext();) 
-    //   {
-    //     SelectionKey key = i.next();
-    //     i.remove();
-
-    //     if(key.isAcceptable()) {
-    //       if(key.socket().getPort() == 8888) {
-    //         new Thread(ssc.accept().socket()).start();
-    //       }
-    //     }
-    //   }
-      // while(selectedKeys.hasNext()) 
-      // {
-      //     SelectionKey ky = (SelectionKey) selectedKeys.next();
-
-      //     if(ky.isAcceptable()) {
-      //       // Create thread here
-      //       SocketChannel sc = ((ServerSocketChannel) ky.channel()).accept();
-      //       sc.configureBlocking(false);
-      //       // if(sc.socket().getPort() == 8888)
-      //       // {
-      //         HttpRequest httpRequest = new HttpRequest(sc.socket());
-      //         Thread thread1 = new Thread(httpRequest);
-      //         thread1.start();
-      //       // } 
-      //     }
-      // }
-
-    }
-  }
-
-
-
 final class HttpRequest implements Runnable {
       
   final static String CRLF = "\r\n";
@@ -139,7 +61,7 @@ final class HttpRequest implements Runnable {
   }
   private void processRequest() throws Exception {
     // Get a reference to the socket's input and output streams
-    System.out.println("Did we get this far?");
+
     InputStream is = socket.getInputStream();
     DataOutputStream os = new DataOutputStream(socket.getOutputStream());
     // Set up input stream filters
@@ -148,7 +70,7 @@ final class HttpRequest implements Runnable {
     // Get the request line of the HTTP request image
     String requestLine = br.readLine();
     // Display the request line
-    System.out.println("******************");
+
     // System.out.println(requestLine);
     // Get and display the header lines
     String headerLine = null;
@@ -167,9 +89,9 @@ final class HttpRequest implements Runnable {
     // Prepend a "." so that file req is within current directory
     fileName = "." + fileName;
     //Testing to see the filename
-    System.out.println("*********************");
+
     System.out.println(requestLine);
-    System.out.println("*********************");
+
     System.out.println("FILE: " + fileName);
     // Open the requested file
     FileInputStream fis = null;
@@ -178,7 +100,7 @@ final class HttpRequest implements Runnable {
       fis = new FileInputStream(fileName);
     } catch (FileNotFoundException e) {
       fileExists = false;
-      System.out.println("THIS FILE IS NOT FOUND!!!!!!%^&*(&^%^&*(&^%^*()");
+
       System.out.println(fileExists);
     }
     // Construct the response message
@@ -201,7 +123,7 @@ final class HttpRequest implements Runnable {
     System.out.println("Status line is " + statusLine);
     // Send the content type line
     os.writeBytes(contentTypeLine);
-    System.out.println("Content typeline is " + contentTypeLine);
+
     // Send a blank line to indicate the end of the header line
     os.writeBytes(CRLF);
   
@@ -217,7 +139,7 @@ final class HttpRequest implements Runnable {
   }
   private static void sendBytes(FileInputStream fis, OutputStream os) throws Exception {
     // Construct a 1K buffer to hold bytes on their way to the socket
-    System.out.println("In sendbytesl");
+
     byte[] buffer = new byte[1024];
     int bytes = 0;
     
